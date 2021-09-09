@@ -1,0 +1,20 @@
+[package]
+name = "factory"
+description = "Casper Anyswap Integration - Factory contract written in Rust"
+version = "0.1.0"
+authors = ["Jihed CHALGHAF <chalghaf.jihed@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+contract = { package = "casper-contract", version="1.3.2" }
+types = { package = "casper-types", version="1.3.2" }
+hex = "0.4.3"
+
+[lib]
+crate-type = ["cdylib"]
+name = "factory"
+
+[features]
+default = ["contract/std", "types/std"]

@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "libs",
+    "erc20",
+    "cspr-holder",
+    "factory",
+    "tests"
+]
+
+# enable overflow checks (similar to SafeMath in solidity)
+[profile.release]
+overflow-checks = true
+lto = true
