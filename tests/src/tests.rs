@@ -211,26 +211,10 @@ fn test_lock_zero() {
 
 #[test]
 #[should_panic]
-fn test_unlock_too_much() {
-    let mut b = CsprHolder::deployed();
-    let amount: U512 = 10.into();
-    let main_purse = URef::new(b.ali.value(), AccessRights::READ_ADD_WRITE);
-    b.unlock(
-        main_purse,
-        PublicKey::ed25519_from_bytes([3u8; 32]).unwrap(),
-        amount,
-        CSPR_Sender(b.ali)
-    );
-}
-
-#[test]
-#[should_panic]
 fn test_unlock_not_owner() {
     let mut b = CsprHolder::deployed();
     let amount: U512 = 10.into();
-    let main_purse = URef::new(b.ali.value(), AccessRights::READ_ADD_WRITE);
     b.unlock(
-        main_purse,
         PublicKey::ed25519_from_bytes([6u8; 32]).unwrap(),
         amount,
         CSPR_Sender(b.bob)

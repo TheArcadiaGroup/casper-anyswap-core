@@ -1,5 +1,5 @@
 use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
-use casper_types::{AsymmetricType, CLTyped, PublicKey, RuntimeArgs, U512, URef, account::AccountHash, bytesrepr::FromBytes, runtime_args};
+use casper_types::{AsymmetricType, PublicKey, RuntimeArgs, U512, URef, account::AccountHash, runtime_args};
 
 // contains methods that can simulate a real-world deployment (storing the contract in the blockchain)
 // and transactions to invoke the methods in the contract.
@@ -48,41 +48,6 @@ impl CsprHolder {
             .unwrap_or_else(|_| panic!("{} has wrong type", "CSPR_Holder"))
     }
 
-    /// query a contract's named key.
-    // fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
-    //     match self
-    //         .context
-    //         .query(self.ali, &["CSPR_Holder".to_string(), name.to_string()])
-    //     {
-    //         Err(_) => None,
-    //         Ok(maybe_value) => {
-    //             let value = maybe_value
-    //                 .into_t()
-    //                 .unwrap_or_else(|_| panic!("{} is not expected type.", name));
-    //             Some(value)
-    //         }
-    //     }
-    // }
-
-    /// query a contract's dictionary's key.
-    fn query_contract_dictionary<T: CLTyped + FromBytes>(
-        &self,
-        key: AccountHash,
-        context: &TestContext,
-        dictionary_name: String,
-        name: String,
-    ) -> Option<T> {
-        match context.query_dictionary_item(key.into(), Some(dictionary_name), name.clone()) {
-            Err(_) => None,
-            Ok(maybe_value) => {
-                let value = maybe_value
-                    .into_t()
-                    .unwrap_or_else(|_| panic!("{} is not the expected type.", name));
-                Some(value)
-            }
-        }
-    }
-
     /// call a contract's specific entry point.
     fn call(&mut self, sender: Sender, method: &str, args: RuntimeArgs) {
         let Sender(address) = sender;
@@ -92,15 +57,6 @@ impl CsprHolder {
             .with_authorization_keys(&[address])
             .build();
         self.context.run(session);
-    }
-
-    pub fn balance_of(&self, purse: URef) -> U512 {
-        self.query_contract_dictionary(
-            self.ali,
-            &self.context,
-            "balances".to_string(),
-            purse.to_string()
-        ).unwrap()
     }
 
     pub fn lock(
@@ -121,7 +77,6 @@ impl CsprHolder {
 
     pub fn unlock(
         &mut self,
-        target_purse: URef,
         target_pubkey: PublicKey,
         amount: U512,
         sender: Sender,
@@ -130,7 +85,6 @@ impl CsprHolder {
             sender,
             "unlock",
             runtime_args! {
-                "target_purse" => target_purse,
                 "target_pubkey" => target_pubkey,
                 "amount" => amount
             }

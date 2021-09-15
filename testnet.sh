@@ -10,7 +10,7 @@ red_bg=`tput setab 1`
 NODE_ADDRESS=http://135.181.162.15:7777
 DEPLOY_AMOUNT=200000000000
 QUERY_AMOUNT=1921300000
-CSPR_HOLDER_HASH=hash-2cd27bb7d9095fbbad8a1160ca06788d0555b16b2c2bcc1b29d5ad30ff97359d
+CSPR_HOLDER_HASH=hash-9d6e519c1c0981c178370e283369278ec0e594ab05c64a7648cc104fcf344c2f
 #The following hash was a result of deploying the ERC20 token from its contract.
 #ERC20_HASH=hash-3f38843e639f144dc1535999becfdad347b8518736b9dfd9a0430fd60e366d5f
 #The following hash was a result of deploying the ERC20 token from from the factory contract.
@@ -129,12 +129,12 @@ then
       fi
     elif [[ $3 == 'unlock' ]]
     then
-      if [[ $4 != '' && $5 != '' && $6 != '' ]]
+      if [[ $4 != '' && $5 != '' ]]
       then
-        casper-client put-deploy --chain-name casper-test --node-address ${NODE_ADDRESS} --payment-amount ${QUERY_AMOUNT} --secret-key ${GOVERNANCE_KEY} --session-hash ${CSPR_HOLDER_HASH} --session-entry-point unlock --session-arg "target_purse:uref='$4'" "target_pubkey:public_key='$5'" "amount:u512='$6'"
+        casper-client put-deploy --chain-name casper-test --node-address ${NODE_ADDRESS} --payment-amount ${QUERY_AMOUNT} --secret-key ${GOVERNANCE_KEY} --session-hash ${CSPR_HOLDER_HASH} --session-entry-point unlock --session-arg "target_pubkey:public_key='$4'" "amount:u512='$5'"
       else
         echo "${red_bg}↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴ Invalid Syntax! ↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴${reset}"
-        echo "[✔] ${red}cspr_holder ${purple}query ${green}unlock${reset} <TARGET_PURSE> <TARGET_PUBKEY> <AMOUNT>"
+        echo "[✔] ${red}cspr_holder ${purple}query ${green}unlock${reset} <TARGET_PUBKEY> <AMOUNT>"
         exit 0
       fi
     fi
@@ -208,7 +208,7 @@ then
   echo "[✔] ${red}erc20 ${purple}query${reset} ${green}burn${reset} <OWNER> <AMOUNT>"
   echo "[✔] ${red}cspr_holder ${purple}deploy${reset} <GOVERNANCE>"
   echo "[✔] ${red}cspr_holder ${purple}query ${green}lock${reset} <SOURCE_PURSE> <AMOUNT>"
-  echo "[✔] ${red}cspr_holder ${purple}query ${green}unlock${reset} <TARGET_PURSE> <TARGET_PUBKEY> <AMOUNT>"
+  echo "[✔] ${red}cspr_holder ${purple}query ${green}unlock${reset} <TARGET_PUBKEY> <AMOUNT>"
   echo "[✔] ${red}factory ${purple}deploy${reset} <GOVERNANCE>"
   echo "[✔] ${red}factory ${purple}query ${green}create_erc20${reset} <NAME> <SYMBOL> <DECIMALS> <TOTAL_SUPPLY> <GOVERNANCE>"
 fi

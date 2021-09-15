@@ -22,8 +22,7 @@ use types::{ApiError, CLType, CLTyped, CLValue, ContractHash, Group, Key, Parame
 
 pub enum Error {
     DepositAmountTooSmall = 0,
-    WithdrawAmountExceedsBalance = 1,
-    NoAccessRights = 2,
+    NoAccessRights = 1,
 }
 
 impl From<Error> for ApiError {
@@ -45,35 +44,20 @@ pub extern "C" fn lock() {
     transfer_from_purse_to_purse(src_purse, contract_purse, amount, None)
         .unwrap_or_revert();
     
-    let balance = get_key::<U512>("balances", &uref_to_str(&src_purse));
-    set_key("balances", &uref_to_str(&src_purse), balance + amount);
 }
 
 #[no_mangle]
 pub extern "C" fn unlock() {
     _authorization_check();
-    let target_purse: URef = runtime::get_named_arg("target_purse");
     let target_pubkey: PublicKey = runtime::get_named_arg("target_pubkey");
     let amount: U512 = runtime::get_named_arg("amount");
 
-    let balance = get_key::<U512>("balances", &uref_to_str(&target_purse));
-    if (balance < amount) {
-        runtime::revert(Error::WithdrawAmountExceedsBalance);
-    }
     let contract_purse_key = runtime::get_key("contract_purse").unwrap_or_revert();
     let contract_purse = *contract_purse_key.as_uref().unwrap_or_revert();
 
     transfer_from_purse_to_account(contract_purse, target_pubkey.to_account_hash(), amount, None)
         .unwrap_or_revert();
 
-    set_key("balances", &uref_to_str(&target_purse), balance - amount);
-}
-
-#[no_mangle]
-pub extern "C" fn balance_of() {
-    let purse: URef = runtime::get_named_arg("purse");
-    let val: U512 = get_key("balances", &purse.to_string());
-    ret(val)
 }
 
 #[no_mangle]
@@ -92,16 +76,10 @@ pub extern "C" fn call() {
     entry_points.add_entry_point(endpoint(
         "unlock",
         vec![
-            Parameter::new("target_purse", CLType::URef),
             Parameter::new("target_pubkey", CLType::PublicKey),
             Parameter::new("amount", CLType::U512),
         ],
         CLType::Unit,
-    ));
-    entry_points.add_entry_point(endpoint(
-        "balance_of",
-        vec![Parameter::new("purse", CLType::URef)],
-        CLType::U512,
     ));
 
     let dictionary_seed_uref = storage::new_dictionary("cspr_holder_data").unwrap_or_revert();
@@ -110,15 +88,10 @@ pub extern "C" fn call() {
         "governance",
         runtime::get_named_arg::<AccountHash>("governance")
     );
-    let balances_seed_uref = storage::new_dictionary("balances").unwrap_or_revert();
     let mut named_keys = NamedKeys::new();
     named_keys.insert(
         "cspr_holder_data".to_string(), 
         dictionary_seed_uref.into()
-    );
-    named_keys.insert(
-        "balances".to_string(), 
-        balances_seed_uref.into()
     );
     named_keys.insert(
         "contract_purse".to_string(),
@@ -142,10 +115,6 @@ pub extern "C" fn call() {
     );
 }
 
-fn ret<T: CLTyped + ToBytes>(value: T) {
-    runtime::ret(CLValue::from_t(value).unwrap_or_revert())
-}
-
 fn get_dictionary_seed_uref(name: &str) -> URef {
     let dictionary_seed_uref = match runtime::get_key(name) {
         Some(key) => key.into_uref().unwrap_or_revert(),
@@ -162,11 +131,6 @@ fn get_dictionary_seed_uref(name: &str) -> URef {
 fn get_key<T: FromBytes + CLTyped + Default>(dictionary_name: &str, key: &str) -> T {
     let dictionary_seed_uref = get_dictionary_seed_uref(dictionary_name);
     storage::dictionary_get(dictionary_seed_uref, key).unwrap_or_default().unwrap_or_default()
-}
-
-fn set_key<T: ToBytes + CLTyped>(dictionary_name: &str, key: &str, value: T) { 
-    let dictionary_seed_uref = get_dictionary_seed_uref(dictionary_name);
-    storage::dictionary_put(dictionary_seed_uref, key, value)
 }
 
 fn endpoint(name: &str, param: Vec<Parameter>, ret: CLType) -> EntryPoint {
@@ -203,8 +167,4 @@ fn _authorization_check() {
     ) {
         runtime::revert(Error::NoAccessRights);
     }
-}
-
-fn uref_to_str(uref: &URef) -> String {
-    hex::encode(uref.addr())
 }
