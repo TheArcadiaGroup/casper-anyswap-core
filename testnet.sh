@@ -121,7 +121,7 @@ then
     then
       if [[ $4 != '' && $5 != '' ]]
       then
-        casper-client put-deploy --chain-name casper-test --node-address ${NODE_ADDRESS} --payment-amount ${QUERY_AMOUNT} --secret-key ${CSPR_HOLDER_KEY} --session-hash ${CSPR_HOLDER_HASH} --session-entry-point lock --session-arg "src_purse:uref='$4'" "amount:u512='$5'"
+        casper-client put-deploy --chain-name casper-test --node-address ${NODE_ADDRESS} --payment-amount ${QUERY_AMOUNT} --secret-key ${ERC20_KEY} --session-hash ${CSPR_HOLDER_HASH} --session-entry-point lock --session-arg "src_purse:uref='$4'" "amount:u512='$5'"
       else
         echo "${red_bg}↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴ Invalid Syntax! ↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴↴${reset}"
         echo "[✔] ${red}cspr_holder ${purple}query ${green}lock${reset} <SRC_PURSE> <AMOUNT>"

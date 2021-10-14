@@ -155,6 +155,12 @@ pub extern "C" fn create_erc20() {
 
     let entry_points = set_erc20_entry_points();
 
+    // remove old dictionaries:
+    runtime::remove_key("token_metadata");
+    runtime::remove_key("external");
+    runtime::remove_key("balances");
+    runtime::remove_key("internal");
+
     let dictionary_seed_uref = storage::new_dictionary("token_metadata").unwrap_or_revert();
     storage::dictionary_put(
         dictionary_seed_uref,

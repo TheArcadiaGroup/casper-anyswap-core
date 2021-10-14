@@ -250,6 +250,47 @@ fn test_factory_create_erc20() {
 }
 
 #[test]
+fn test_factory_create_multiple_erc20() {
+    let mut f = Factory::deployed();
+
+    // First ERC20 creation
+    let contract_hash = f.get_erc20_hash(
+        token_cfg::NAME.to_string()
+    );
+    assert_eq!(contract_hash, ContractHash::default());
+    f.create_erc20(
+        token_cfg::NAME.to_string(),
+        token_cfg::SYMBOL.to_string(),
+        token_cfg::DECIMALS,
+        token_cfg::total_supply(),
+        f.ali,
+        F_Sender(f.ali)
+    );
+    let contract_hash = f.get_erc20_hash(
+        token_cfg::NAME.to_string()
+    );
+    assert_ne!(contract_hash, ContractHash::default());
+
+    // First ERC20 creation
+    let contract_hash = f.get_erc20_hash(
+        "DAI".to_string()
+    );
+    assert_eq!(contract_hash, ContractHash::default());
+    f.create_erc20(
+        "DAI".to_string(),
+        "DAI".to_string(),
+        token_cfg::DECIMALS,
+        token_cfg::total_supply(),
+        f.ali,
+        F_Sender(f.ali)
+    );
+    let contract_hash = f.get_erc20_hash(
+        "DAI".to_string()
+    );
+    assert_ne!(contract_hash, ContractHash::default());
+}
+
+#[test]
 #[should_panic]
 fn test_factory_create_unauthorized() {
     let mut f = Factory::deployed();
